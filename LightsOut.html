@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lights Out Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        #gameBoard {
+            display: grid;
+            grid-template-columns: repeat(10, 50px);
+            grid-template-rows: repeat(10, 50px);
+            gap: 5px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .cell {
+            width: 50px;
+            height: 50px;
+            background-color: black;
+            border: 1px solid #ccc;
+        }
+
+        .light-on {
+            background-color: white;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>Lights Out Game</h1>
+    <div id="gameBoard"></div>
+
+    <script>
+        const gridSize = 10; // You can change this to make a custom grid size
+        const gameBoard = document.getElementById('gameBoard');
+
+        // Create the grid
+        let lights = [];
+        for (let i = 0; i < gridSize; i++) {
+            lights[i] = [];
+            for (let j = 0; j < gridSize; j++) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.dataset.row = i;
+                cell.dataset.col = j;
+
+                // Randomly decide if the light should be on or off
+                if (Math.random() > 0.5) {
+                    cell.classList.add('light-on');
+                }
+
+                // Toggle cell and adjacent cells when clicked
+                cell.addEventListener('click', function () {
+                    toggleLight(i, j);
+                    if (i > 0) toggleLight(i - 1, j); // top
+                    if (i < gridSize - 1) toggleLight(i + 1, j); // bottom
+                    if (j > 0) toggleLight(i, j - 1); // left
+                    if (j < gridSize - 1) toggleLight(i, j + 1); // right
+                });
+
+                gameBoard.appendChild(cell);
+                lights[i][j] = cell;
+            }
+        }
+
+        function toggleLight(row, col) {
+            const cell = lights[row][col];
+            cell.classList.toggle('light-on');
+        }
+    </script>
+
+</body>
+</html>
