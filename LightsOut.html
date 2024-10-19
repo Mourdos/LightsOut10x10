@@ -32,28 +32,19 @@
             background-color: white;
         }
 
-        /* Mobile responsiveness */
+        /* Make grid take full width on mobile */
         @media (max-width: 600px) {
             #gameBoard {
-                grid-template-columns: repeat(10, 40px);
-                grid-template-rows: repeat(10, 40px);
+                width: 100%;
+                grid-template-columns: repeat(10, 1fr);
+                grid-template-rows: repeat(10, 1fr);
+                gap: 2px;
             }
 
             .cell {
-                width: 40px;
-                height: 40px;
-            }
-        }
-
-        @media (max-width: 400px) {
-            #gameBoard {
-                grid-template-columns: repeat(10, 30px);
-                grid-template-rows: repeat(10, 30px);
-            }
-
-            .cell {
-                width: 30px;
-                height: 30px;
+                width: 100%;
+                height: auto;
+                padding-bottom: 100%; /* Ensures the cells remain square */
             }
         }
     </style>
@@ -64,7 +55,7 @@
     <div id="gameBoard"></div>
 
     <script>
-        const gridSize = 10; // You can change this to make a custom grid size
+        const gridSize = 10; // 10x10 grid
         const gameBoard = document.getElementById('gameBoard');
 
         // Create the grid
