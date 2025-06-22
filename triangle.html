@@ -27,16 +27,16 @@ const triHeight = triSize * Math.sqrt(3) / 2;
 
 // Image sources (served from a local server, not C:/ directly)
 const imageSources = [
-  'https://media.discordapp.net/attachments/672171149387628564/1386409256366116894/UpEmpty.png?ex=685999bc&is=6858483c&hm=5fb40337bf2a402a4c22d4229d9e7e705febc373ae6faeafaf0bf00747affebe&=&format=webp&quality=lossless&width=881&height=762',
-  'https://media.discordapp.net/attachments/672171149387628564/1386409257087402106/UpFilled.png?ex=685999bd&is=6858483d&hm=0f9a7b49510dc4a11fa234424a3ae57406c973a403b8ae325ba468a7def97ef4&=&format=webp&quality=lossless&width=881&height=762',
-  'https://media.discordapp.net/attachments/672171149387628564/1386409256701657288/UpEnd.png?ex=685999bd&is=6858483d&hm=78993a292aff22ed236c4331e1a3c6f2c7340a90aaa5429faf4e22feecf037b7&=&format=webp&quality=lossless&width=875&height=762',
-  'https://media.discordapp.net/attachments/672171149387628564/1386409257360163048/UpStart.png?ex=685999bd&is=6858483d&hm=bfd8f8155426f2619110c19dad8ae2691ce92ebe9f7920bff5d68bf845462306&=&format=webp&quality=lossless&width=875&height=762'
+  'https://github.com/Mourdos/LightsOut10x10/blob/main/Alchemy/UpEmpty.png',
+  'https://github.com/Mourdos/LightsOut10x10/blob/main/Alchemy/UpFilled.png',
+  'https://github.com/Mourdos/LightsOut10x10/blob/main/Alchemy/UpStart.png',
+  'https://github.com/Mourdos/LightsOut10x10/blob/main/Alchemy/UpEnd.png'
 ];
 const otherimageSources = [
-  'https://media.discordapp.net/attachments/672171149387628564/1386409257674477618/DownEmpty.png?ex=685999bd&is=6858483d&hm=34687950f9101d5189146d72ce42f3b9c2d2c86667edd36a0dc18e37b6641094&=&format=webp&quality=lossless&width=881&height=762',
-  'https://media.discordapp.net/attachments/672171149387628564/1386409255862534235/DownFilled.png?ex=685999bc&is=6858483c&hm=f059e1911b1fda9564fe86f47cc52e9edb49841e829398dd50d3d3d2d58f1ff9&=&format=webp&quality=lossless&width=881&height=762',
-  'https://media.discordapp.net/attachments/672171149387628564/1386409256135295016/DownStart.png?ex=685999bc&is=6858483c&hm=cd4eccdf59ea38c1695d11fb06a5c016cf80b610eb37a60bc87077974e8b8db3&=&format=webp&quality=lossless&width=875&height=762',
-  'https://media.discordapp.net/attachments/672171149387628564/1386409257938980995/DownEndA.png?ex=685999bd&is=6858483d&hm=86c7c21cc248cafacd74877b78a001c21fe3cbcc7c31af334d81312435758889&=&format=webp&quality=lossless&width=875&height=762'
+  'https://github.com/Mourdos/LightsOut10x10/blob/main/Alchemy/DownEmpty.png',
+  'https://github.com/Mourdos/LightsOut10x10/blob/main/Alchemy/DownFilled.png',
+  'https://github.com/Mourdos/LightsOut10x10/blob/main/Alchemy/DownStart.png',
+  'https://github.com/Mourdos/LightsOut10x10/blob/main/Alchemy/DownEnd.png'
 
 ];
 
@@ -186,7 +186,7 @@ document.getElementById('saveBtn').addEventListener('click', () => {
 
   const fileName = userText.trim();
 
-  drawGrid(true);
+  drawGrid(false);
 
   ctx.font = "24px Arial";
   ctx.fillStyle = "black";
