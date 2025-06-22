@@ -6,14 +6,14 @@
 <title>Triangle Grid Image Toggle with Save</title>
 <style>
   canvas {
-    border: 0px solid #333;
+    border: 1px solid #333;
     display: block;
   }
 </style>
 </head>
 <body>
 
-<canvas id="triangleGrid" width="1200" height="800"></canvas>
+<canvas id="triangleGrid" width="800" height="750"></canvas>
 <button id="saveBtn">Cleanup and Name</button>
 <button id="resetBtn" style="margin-left: 10px;">Reset Canvas</button>
 
@@ -189,7 +189,7 @@ document.getElementById('saveBtn').addEventListener('click', () => {
   const fileName = userText.trim().replace(/\s+/g, '_') + '.png';
 
   // Draw grid hiding imageIndex 0 for saving
-  drawGrid(true);
+  drawGrid(false);
 
   // Draw the user text at bottom of canvas
   ctx.font = "24px Arial";
@@ -217,7 +217,7 @@ document.getElementById('resetBtn').addEventListener('click', () => {
   triangles.forEach(tri => tri.imageIndex = 0);
 
   // Redraw grid with all images visible
-  drawGrid(false);
+  drawGrid(true);
 });
 
 
