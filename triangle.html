@@ -113,7 +113,7 @@ function drawTriangle(tri) {
     // Draw the image stretched to fit triangle width and correct height
     ctx.drawImage(oimg, 
     -triSize / 2, 
-    -triHeight / 2, 
+    -triSize / 2, 
     triSize, 
     triHeight);
   }
@@ -152,14 +152,17 @@ canvas.addEventListener('click', e => {
   for (const tri of triangles) {
     let ax, ay, bx, by, cx, cy;
     if (tri.pointingUp) {
-      ax = tri.x; ay = tri.y + triSize * Math.sqrt(3) / 2;
+      ax = tri.x;
+      ay = tri.y + triHeight;
       bx = tri.x + triSize / 2;
       by = tri.y;
       cx = tri.x + triSize;
-      cy = tri.y + triSize * Math.sqrt(3) / 2;
+      cy = tri.y + triHeight;
     } else {
-      ax = tri.x; ay = tri.y;
-      bx = tri.x + triSize / 2; by = tri.y + triSize * Math.sqrt(3) / 2;
+      ax = tri.x;
+      ay = tri.y;
+      bx = tri.x + triSize / 2;
+      by = tri.y + triHeight;
       cx = tri.x + triSize;
       cy = tri.y;
     }
