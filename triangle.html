@@ -5,15 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Triangle Grid Image Toggle with Save</title>
 <style>
-  canvas {
-    border: 1px solid #333;
-    display: block;
-  }
+canvas {
+  display: block;
+  /* Removed border and padding, since those won't be saved in image */
+}
 </style>
 </head>
 <body>
 
-<canvas id="triangleGrid" width="800" height="750"></canvas>
+<canvas id="triangleGrid" width="800" height="800"></canvas>
 <button id="saveBtn">Cleanup and Name</button>
 <button id="resetBtn" style="margin-left: 10px;">Reset Canvas</button>
 
@@ -26,7 +26,6 @@ const rows = 4;
 const triSize = 200;
 const triHeight = triSize * Math.sqrt(3) / 2;
 
-// Image sources (served from a local server, not C:/ directly)
 const imageSources = [
   'https://mourdos.github.io/LightsOut10x10/Alchemy/UpEmpty.png',
   'https://mourdos.github.io/LightsOut10x10/Alchemy/UpFilled.png',
@@ -38,7 +37,6 @@ const otherimageSources = [
   'https://mourdos.github.io/LightsOut10x10/Alchemy/DownFilled.png',
   'https://mourdos.github.io/LightsOut10x10/Alchemy/DownStart.png',
   'https://mourdos.github.io/LightsOut10x10/Alchemy/DownEnd.png'
-
 ];
 
 const otherimages = [];
@@ -46,29 +44,27 @@ let otherimagesLoaded = 0;
 const images = [];
 let imagesLoaded = 0;
 
-// Preload images
 imageSources.forEach(src => {
   const img = new Image();
   img.src = src;
   img.onload = () => {
     imagesLoaded++;
-    if (imagesLoaded === imageSources.length) {
+    if (imagesLoaded === imageSources.length && otherimagesLoaded === otherimageSources.length) {
       createGrid();
-      drawGrid();
+      drawGrid(false);
     }
   };
   images.push(img);
 });
 
-// Preload images
 otherimageSources.forEach(src => {
   const img = new Image();
   img.src = src;
   img.onload = () => {
     otherimagesLoaded++;
-    if (otherimagesLoaded === otherimageSources.length) {
+    if (imagesLoaded === imageSources.length && otherimagesLoaded === otherimageSources.length) {
       createGrid();
-      drawGrid();
+      drawGrid(false);
     }
   };
   otherimages.push(img);
@@ -93,43 +89,92 @@ function createGrid() {
   }
 }
 
-
-
 function drawTriangle(tri) {
   const img = images[tri.imageIndex];
-  const oimg = otherimages[tri.imageIndex]
+  const oimg = otherimages[tri.imageIndex];
   ctx.save();
 
-  ctx.translate(tri.x + triSize / 2, tri.y + triHeight / 2); // center of the triangle area
+  ctx.translate(tri.x + triSize / 2, tri.y + triHeight / 2);
 
   if (tri.pointingUp) {
-      // Draw the image stretched to fit triangle width and correct height
-    ctx.drawImage(img, 
-    -triSize / 2, 
-    -triHeight / 2, 
-    triSize, 
-    triHeight);
-
+    ctx.drawImage(img, -triSize / 2, -triHeight / 2, triSize, triHeight);
   } else {
-    // Draw the image stretched to fit triangle width and correct height
-    ctx.drawImage(oimg, 
-    -triSize / 2, 
-    -triHeight / 2, 
-    triSize, 
-    triHeight);
+    ctx.drawImage(oimg, -triSize / 2, -triHeight / 2, triSize, triHeight);
   }
 
   ctx.restore();
-
 }
 
-function drawGrid(hideIndexZero = false) {
+function drawBorderAndMargin() {
+  const borderThickness = 6;
+  const margin = 10;
+
+  // Clear entire canvas first
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  triangles.forEach(tri => {
-    // If hiding index 0 during PNG save, skip drawing this triangle
-    if (hideIndexZero && tri.imageIndex === 0) return;
-    drawTriangle(tri);
-  });
+
+  // Fill white background inside canvas to avoid transparency in margin area
+  ctx.fillStyle = 'white';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Draw outer border (first black rectangle)
+  ctx.lineWidth = borderThickness;
+  ctx.strokeStyle = 'black';
+  ctx.strokeRect(
+    borderThickness / 2,
+    borderThickness / 2,
+    canvas.width - borderThickness,
+    canvas.height - borderThickness
+  );
+
+  // Draw inner border (second black rectangle for double border effect)
+  const innerOffset = borderThickness * 2; // space between borders
+  ctx.strokeRect(
+    innerOffset + borderThickness / 2,
+    innerOffset + borderThickness / 2,
+    canvas.width - innerOffset * 2 - borderThickness,
+    canvas.height - innerOffset * 2 - borderThickness
+  );
+
+  // Return the drawing area offset and size inside the margin (for grid drawing)
+  return {
+    x: innerOffset + margin,
+    y: innerOffset + margin,
+    width: canvas.width - (innerOffset + margin) * 2,
+    height: canvas.height - (innerOffset + margin) * 2
+  };
+}
+
+function drawGrid(hideIndexZero = false, withBorder = false) {
+  if (withBorder) {
+    // Draw border and margin first, get drawing area offset
+    const drawArea = drawBorderAndMargin();
+
+    // Save ctx and translate to drawing area start (inside margin)
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(drawArea.x, drawArea.y, drawArea.width, drawArea.height);
+    ctx.clip();
+
+    ctx.translate(drawArea.x, drawArea.y);
+
+    // Draw triangles offset by drawArea.x/y
+    triangles.forEach(tri => {
+      if (hideIndexZero && tri.imageIndex === 0) return;
+      // Adjust triangle x,y by negative drawArea.x/y (since we translated)
+      const triCopy = {...tri, x: tri.x, y: tri.y};
+      drawTriangle(triCopy);
+    });
+
+    ctx.restore();
+
+  } else {
+    // Normal grid drawing without border & margin
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    triangles.forEach(tri => {
+      if (hideIndexZero && tri.imageIndex === 0) return;
+      drawTriangle(tri);
+    });
+  }
 }
 
 function pointInTriangle(px, py, ax, ay, bx, by, cx, cy) {
@@ -175,7 +220,7 @@ canvas.addEventListener('click', e => {
 
     if (pointInTriangle(clickX, clickY, ax, ay, bx, by, cx, cy)) {
       tri.imageIndex = (tri.imageIndex + 1) % images.length;
-      drawGrid();
+      drawGrid(false);
       break;
     }
   }
@@ -185,22 +230,22 @@ document.getElementById('saveBtn').addEventListener('click', () => {
   const userText = prompt("Enter the text to add to the image:", "Generated by LightsOut10x10");
   if (userText === null) return;
 
-  // Create filename from userText: trim, replace spaces with underscores, append .png
   const fileName = userText.trim().replace(/\s+/g, '_') + '.png';
 
-  // Draw grid hiding imageIndex 0 for saving
-  drawGrid(true);
+  // Draw grid with border and margin, hiding triangles with imageIndex 0
+  drawGrid(true, true);
 
-  // Draw the user text at bottom of canvas
-  ctx.font = "24px Times New Roman";
+  // Draw user text near bottom inside the margin and border area
+  ctx.font = "48px Times New Roman";
   ctx.fillStyle = "black";
   ctx.textAlign = "center";
-  ctx.fillText(userText, canvas.width / 2, canvas.height - 10);
 
-  // Generate PNG data URL
+  // Position text ~30px from bottom to fit inside margin area
+  ctx.fillText(userText, canvas.width / 2, canvas.height - 30);
+
+  // Save image
   const imageURL = canvas.toDataURL('image/png');
 
-  // Trigger automatic download with generated filename
   const link = document.createElement('a');
   link.href = imageURL;
   link.download = fileName;
@@ -208,18 +253,14 @@ document.getElementById('saveBtn').addEventListener('click', () => {
   link.click();
   document.body.removeChild(link);
 
-  // Restore canvas to original state with all images visible
-  drawGrid(false);
+  // Restore normal grid drawing without border/margin
+  drawGrid(false, false);
 });
 
 document.getElementById('resetBtn').addEventListener('click', () => {
-  // Reset all triangles' imageIndex to 0
   triangles.forEach(tri => tri.imageIndex = 0);
-
-  // Redraw grid with all images visible
   drawGrid(false);
 });
-
 
 </script>
 
