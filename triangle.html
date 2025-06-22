@@ -105,17 +105,17 @@ function drawTriangle(tri) {
       // Draw the image stretched to fit triangle width and correct height
     ctx.drawImage(img, 
     -triSize / 2, 
-    -triSize / 2, 
+    -triHeight / 2, 
     triSize, 
-    triSize);
+    triHeight);
 
   } else {
     // Draw the image stretched to fit triangle width and correct height
     ctx.drawImage(oimg, 
     -triSize / 2, 
-    -triSize / 2, 
+    -triHeight / 2, 
     triSize, 
-    triSize);
+    triHeight);
   }
 
   ctx.restore();
