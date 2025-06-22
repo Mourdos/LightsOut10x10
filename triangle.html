@@ -189,10 +189,10 @@ document.getElementById('saveBtn').addEventListener('click', () => {
   const fileName = userText.trim().replace(/\s+/g, '_') + '.png';
 
   // Draw grid hiding imageIndex 0 for saving
-  drawGrid(false);
+  drawGrid(true);
 
   // Draw the user text at bottom of canvas
-  ctx.font = "24px Arial";
+  ctx.font = "24px Times New Roman";
   ctx.fillStyle = "black";
   ctx.textAlign = "center";
   ctx.fillText(userText, canvas.width / 2, canvas.height - 10);
@@ -217,7 +217,7 @@ document.getElementById('resetBtn').addEventListener('click', () => {
   triangles.forEach(tri => tri.imageIndex = 0);
 
   // Redraw grid with all images visible
-  drawGrid(true);
+  drawGrid(false);
 });
 
 
