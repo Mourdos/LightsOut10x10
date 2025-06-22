@@ -22,7 +22,7 @@ const ctx = canvas.getContext('2d');
 
 const cols = 6;
 const rows = 4;
-const triSize = 100;
+const triSize = 200;
 const triHeight = triSize * Math.sqrt(3) / 2;
 
 // Image sources (served from a local server, not C:/ directly)
@@ -78,8 +78,8 @@ const triangles = [];
 function createGrid() {
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
-      const x = col * (triSize * 0.5 );
-      const y = row * (triHeight*1.15);
+      const x = col * triSize * 0.499;
+      const y = row * triHeight * 0.999;
       const pointingUp = (row + col) % 2 === 0;
 
       triangles.push({
@@ -113,7 +113,7 @@ function drawTriangle(tri) {
     // Draw the image stretched to fit triangle width and correct height
     ctx.drawImage(oimg, 
     -triSize / 2, 
-    -triSize / 2, 
+    -triHeight / 2, 
     triSize, 
     triHeight);
   }
