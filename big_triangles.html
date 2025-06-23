@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Triangle Grid Image Toggle with Save</title>
+<style>
+canvas {
+  display: block;
+  /* Removed border and padding, since those won't be saved in image */
+}
+button {
+  margin-top: 10px;
+}
+</style>
+</head>
+<body>
+
+<canvas id="triangleGrid" width="3200" height="3200"></canvas>
+<button id="saveBtn">Cleanup and Name</button>
+<button id="resetBtn" style="margin-left: 10px;">Reset Canvas</button>
+<button id="flipBtn" style="margin-left: 10px;">Flip Pattern</button>
+
+<script>
+const canvas = document.getElementById('triangleGrid');
+const ctx = canvas.getContext('2d');
+
+const cols = 13;
+const rows = 13;
+const triSize = 200;
+const triHeight = triSize * Math.sqrt(3) / 2;
+
+const imageSources = [
+  'https://mourdos.github.io/LightsOut10x10/Alchemy/Void.png', 
+  'https://mourdos.github.io/LightsOut10x10/Alchemy/UpEmpty.png'
+];
+const otherimageSources = [
+  'https://mourdos.github.io/LightsOut10x10/Alchemy/Void.png', 
+  'https://mourdos.github.io/LightsOut10x10/Alchemy/DownEmpty.png'
+];
+
+const otherimages = [];
+let otherimagesLoaded = 0;
+const images = [];
+let imagesLoaded = 0;
+
+imageSources.forEach(src => {
+  const img = new Image();
+  img.src = src;
+  img.onload = () => {
+    imagesLoaded++;
+    if (imagesLoaded === imageSources.length && otherimagesLoaded === otherimageSources.length) {
+      createGrid();
+      drawGrid(false);
+    }
+  };
+  images.push(img);
+});
+
+otherimageSources.forEach(src => {
+  const img = new Image();
+  img.src = src;
+  img.onload = () => {
+    otherimagesLoaded++;
+    if (imagesLoaded === imageSources.length && otherimagesLoaded === otherimageSources.length) {
+      createGrid();
+      drawGrid(false);
+    }
+  };
+  otherimages.push(img);
+});
+
+const triangles = [];
+
+function createGrid() {
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      const x = col * triSize * 0.499;
+      const y = row * triHeight * 0.999;
+      const pointingUp = (row + col) % 2 === 0;
+
+      triangles.push({
+        x,
+        y,
+        pointingUp,
+        imageIndex: 1
+      });
+    }
+  }
+}
+
+function drawTriangle(tri) {
+  const img = images[tri.imageIndex];
+  const oimg = otherimages[tri.imageIndex];
+  ctx.save();
+
+  ctx.translate(tri.x + triSize / 2, tri.y + triHeight / 2);
+
+  if (tri.pointingUp) {
+    ctx.drawImage(img, -triSize / 2, -triHeight / 2, triSize, triHeight);
+  } else {
+    ctx.drawImage(oimg, -triSize / 2, -triHeight / 2, triSize, triHeight);
+  }
+
+  ctx.restore();
+}
+
+function drawBorderAndMargin() {
+  const borderThickness = 6;
+  const margin = 10;
+
+  // Clear entire canvas first
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Fill white background inside canvas to avoid transparency in margin area
+  ctx.fillStyle = 'white';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Draw outer border (first black rectangle)
+  ctx.lineWidth = borderThickness;
+  ctx.strokeStyle = 'black';
+  ctx.strokeRect(
+    borderThickness / 2,
+    borderThickness / 2,
+    canvas.width - borderThickness,
+    canvas.height - borderThickness
+  );
+
+  // Draw inner border (second black rectangle for double border effect)
+  const innerOffset = borderThickness * 2; // space between borders
+  ctx.strokeRect(
+    innerOffset + borderThickness / 2,
+    innerOffset + borderThickness / 2,
+    canvas.width - innerOffset * 2 - borderThickness,
+    canvas.height - innerOffset * 2 - borderThickness
+  );
+
+  // Return the drawing area offset and size inside the margin (for grid drawing)
+  return {
+    x: innerOffset + margin,
+    y: innerOffset + margin,
+    width: canvas.width - (innerOffset + margin) * 2,
+    height: canvas.height - (innerOffset + margin) * 2
+  };
+}
+
+function drawGrid(hideIndexZero = false, withBorder = true) {
+  if (withBorder) {
+    // Draw border and margin first, get drawing area offset
+    const drawArea = drawBorderAndMargin();
+
+    // Save ctx and translate to drawing area start (inside margin)
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(drawArea.x, drawArea.y, drawArea.width, drawArea.height);
+    ctx.clip();
+
+    ctx.translate(drawArea.x, drawArea.y);
+
+    // Draw triangles offset by drawArea.x/y
+    triangles.forEach(tri => {
+      if (hideIndexZero && tri.imageIndex === 0) return;
+      // Adjust triangle x,y by negative drawArea.x/y (since we translated)
+      const triCopy = {...tri, x: tri.x, y: tri.y};
+      drawTriangle(triCopy);
+    });
+
+    ctx.restore();
+
+  } else {
+    // Normal grid drawing without border & margin
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    triangles.forEach(tri => {
+      if (hideIndexZero && tri.imageIndex === 0) return;
+      drawTriangle(tri);
+    });
+  }
+}
+
+function pointInTriangle(px, py, ax, ay, bx, by, cx, cy) {
+  const v0x = cx - ax, v0y = cy - ay;
+  const v1x = bx - ax, v1y = by - ay;
+  const v2x = px - ax, v2y = py - ay;
+
+  const dot00 = v0x * v0x + v0y * v0y;
+  const dot01 = v0x * v1x + v0y * v1y;
+  const dot02 = v0x * v2x + v0y * v2y;
+  const dot11 = v1x * v1x + v1y * v1y;
+  const dot12 = v1x * v2x + v1y * v2y;
+
+  const invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
+  const u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+  const v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+
+  return (u >= 0) && (v >= 0) && (u + v <= 1);
+}
+
+canvas.addEventListener('click', e => {
+  const rect = canvas.getBoundingClientRect();
+  const clickX = e.clientX - rect.left;
+  const clickY = e.clientY - rect.top;
+
+  for (const tri of triangles) {
+    let ax, ay, bx, by, cx, cy;
+    if (tri.pointingUp) {
+      ax = tri.x;
+      ay = tri.y + triHeight;
+      bx = tri.x + triSize / 2;
+      by = tri.y;
+      cx = tri.x + triSize;
+      cy = tri.y + triHeight;
+    } else {
+      ax = tri.x;
+      ay = tri.y;
+      bx = tri.x + triSize / 2;
+      by = tri.y + triHeight;
+      cx = tri.x + triSize;
+      cy = tri.y;
+    }
+
+    if (pointInTriangle(clickX, clickY, ax, ay, bx, by, cx, cy)) {
+      tri.imageIndex = (tri.imageIndex + 1) % images.length;
+      drawGrid(false);
+      break;
+    }
+  }
+});
+
+document.getElementById('saveBtn').addEventListener('click', () => {
+  const userText = prompt("Enter the text to add to the image:", "Generated by LightsOut10x10");
+  if (userText === null) return;
+
+  const fileName = userText.trim().replace(/\s+/g, '_') + '.png';
+
+  // Draw grid with border and margin, hiding triangles with imageIndex 0
+  drawGrid(true);
+
+  // Draw user text near bottom inside the margin and border area
+  ctx.font = "48px Times New Roman";
+  ctx.fillStyle = "black";
+  ctx.textAlign = "center";
+
+  // Position text ~30px from bottom to fit inside margin area
+  ctx.fillText(userText, canvas.width / 2, canvas.height - 30);
+
+  // Save image
+  const imageURL = canvas.toDataURL('image/png');
+
+  const link = document.createElement('a');
+  link.href = imageURL;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  // Restore normal grid drawing without border/margin
+  drawGrid(false);
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  triangles.forEach(tri => tri.imageIndex = 0);
+  drawGrid(false);
+});
+
+// New Flip button event listener
+document.getElementById('flipBtn').addEventListener('click', () => {
+  if (triangles.length === 0) return;
+
+  triangles[0].pointingUp = !triangles[0].pointingUp;
+
+  for (let i = 1; i < triangles.length; i++) {
+    triangles[i].pointingUp = !triangles[i - 1].pointingUp;
+  }
+
+  drawGrid(false);
+});
+
+</script>
+
+</body>
+</html>
