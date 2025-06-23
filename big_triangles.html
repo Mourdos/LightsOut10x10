@@ -16,7 +16,7 @@ button {
 </head>
 <body>
 
-<canvas id="triangleGrid" width="3200" height="3200"></canvas>
+<canvas id="triangleGrid" width="1450" height="1600"></canvas>
 <button id="saveBtn">Cleanup and Name</button>
 <button id="resetBtn" style="margin-left: 10px;">Reset Canvas</button>
 <button id="flipBtn" style="margin-left: 10px;">Flip Pattern</button>
@@ -26,7 +26,7 @@ const canvas = document.getElementById('triangleGrid');
 const ctx = canvas.getContext('2d');
 
 const cols = 13;
-const rows = 13;
+const rows = 9;
 const triSize = 200;
 const triHeight = triSize * Math.sqrt(3) / 2;
 
@@ -105,76 +105,76 @@ function drawTriangle(tri) {
   ctx.restore();
 }
 
-function drawBorderAndMargin() {
-  const borderThickness = 6;
-  const margin = 10;
+// function drawBorderAndMargin() {
+//   const borderThickness = 6;
+//   const margin = 10;
 
-  // Clear entire canvas first
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+//   // Clear entire canvas first
+//   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Fill white background inside canvas to avoid transparency in margin area
-  ctx.fillStyle = 'white';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+//   // Fill white background inside canvas to avoid transparency in margin area
+//   ctx.fillStyle = 'white';
+//   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Draw outer border (first black rectangle)
-  ctx.lineWidth = borderThickness;
-  ctx.strokeStyle = 'black';
-  ctx.strokeRect(
-    borderThickness / 2,
-    borderThickness / 2,
-    canvas.width - borderThickness,
-    canvas.height - borderThickness
-  );
+//   // Draw outer border (first black rectangle)
+//   ctx.lineWidth = borderThickness;
+//   ctx.strokeStyle = 'black';
+//   ctx.strokeRect(
+//     borderThickness / 2,
+//     borderThickness / 2,
+//     canvas.width - borderThickness,
+//     canvas.height - borderThickness
+//   );
 
-  // Draw inner border (second black rectangle for double border effect)
-  const innerOffset = borderThickness * 2; // space between borders
-  ctx.strokeRect(
-    innerOffset + borderThickness / 2,
-    innerOffset + borderThickness / 2,
-    canvas.width - innerOffset * 2 - borderThickness,
-    canvas.height - innerOffset * 2 - borderThickness
-  );
+//   // Draw inner border (second black rectangle for double border effect)
+//   const innerOffset = borderThickness * 2; // space between borders
+//   ctx.strokeRect(
+//     innerOffset + borderThickness / 2,
+//     innerOffset + borderThickness / 2,
+//     canvas.width - innerOffset * 2 - borderThickness,
+//     canvas.height - innerOffset * 2 - borderThickness
+//   );
 
-  // Return the drawing area offset and size inside the margin (for grid drawing)
-  return {
-    x: innerOffset + margin,
-    y: innerOffset + margin,
-    width: canvas.width - (innerOffset + margin) * 2,
-    height: canvas.height - (innerOffset + margin) * 2
-  };
-}
+//   // Return the drawing area offset and size inside the margin (for grid drawing)
+//   return {
+//     x: innerOffset + margin,
+//     y: innerOffset + margin,
+//     width: canvas.width - (innerOffset + margin) * 2,
+//     height: canvas.height - (innerOffset + margin) * 2
+//   };
+// }
 
 function drawGrid(hideIndexZero = false, withBorder = true) {
-  if (withBorder) {
-    // Draw border and margin first, get drawing area offset
-    const drawArea = drawBorderAndMargin();
+  // if (withBorder) {
+  //   // Draw border and margin first, get drawing area offset
+  //   const drawArea = drawBorderAndMargin();
 
-    // Save ctx and translate to drawing area start (inside margin)
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(drawArea.x, drawArea.y, drawArea.width, drawArea.height);
-    ctx.clip();
+  //   // Save ctx and translate to drawing area start (inside margin)
+  //   ctx.save();
+  //   ctx.beginPath();
+  //   ctx.rect(drawArea.x, drawArea.y, drawArea.width, drawArea.height);
+  //   ctx.clip();
 
-    ctx.translate(drawArea.x, drawArea.y);
+  //   ctx.translate(drawArea.x, drawArea.y);
 
-    // Draw triangles offset by drawArea.x/y
-    triangles.forEach(tri => {
-      if (hideIndexZero && tri.imageIndex === 0) return;
-      // Adjust triangle x,y by negative drawArea.x/y (since we translated)
-      const triCopy = {...tri, x: tri.x, y: tri.y};
-      drawTriangle(triCopy);
-    });
+  //   // Draw triangles offset by drawArea.x/y
+  //   triangles.forEach(tri => {
+  //     if (hideIndexZero && tri.imageIndex === 0) return;
+  //     // Adjust triangle x,y by negative drawArea.x/y (since we translated)
+  //     const triCopy = {...tri, x: tri.x, y: tri.y};
+  //     drawTriangle(triCopy);
+  //   });
 
-    ctx.restore();
+  //   ctx.restore();
 
-  } else {
+  // } else {
     // Normal grid drawing without border & margin
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     triangles.forEach(tri => {
       if (hideIndexZero && tri.imageIndex === 0) return;
       drawTriangle(tri);
     });
-  }
+  // }
 }
 
 function pointInTriangle(px, py, ax, ay, bx, by, cx, cy) {
@@ -227,7 +227,7 @@ canvas.addEventListener('click', e => {
 });
 
 document.getElementById('saveBtn').addEventListener('click', () => {
-  const userText = prompt("Enter the text to add to the image:", "Generated by LightsOut10x10");
+  const userText = prompt("Enter the name of the file:", "Generated by Big Triangles");
   if (userText === null) return;
 
   const fileName = userText.trim().replace(/\s+/g, '_') + '.png';
@@ -236,12 +236,12 @@ document.getElementById('saveBtn').addEventListener('click', () => {
   drawGrid(true);
 
   // Draw user text near bottom inside the margin and border area
-  ctx.font = "48px Times New Roman";
-  ctx.fillStyle = "black";
-  ctx.textAlign = "center";
+  // ctx.font = "48px Times New Roman";
+  // ctx.fillStyle = "black";
+  // ctx.textAlign = "center";
 
   // Position text ~30px from bottom to fit inside margin area
-  ctx.fillText(userText, canvas.width / 2, canvas.height - 30);
+  // ctx.fillText(userText, canvas.width / 2, canvas.height - 30);
 
   // Save image
   const imageURL = canvas.toDataURL('image/png');
